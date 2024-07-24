@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
-public class CurveMappingSupplier implements CurvesSupplier {
+public class PythonCurveSupplier implements CurvesSupplier {
 
     private final List<Supplier<DynaWaltzCurve>> curvesSupplierList;
 
-    public CurveMappingSupplier() {
+    public PythonCurveSupplier() {
         curvesSupplierList = new LinkedList<>();
     }
 
