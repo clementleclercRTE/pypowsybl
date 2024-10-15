@@ -55,7 +55,7 @@ jobs:
           ref: main
           path: powsybl-core
       - name: Build CORE
-        run: mvn -batch-mode --no-transfer-progress clean install
+        run: mvn -batch-mode --no-transfer-progress clean install -DskipTests
         working-directory: ./powsybl-core
       - name: get CORE_VERSION
         run: echo "CORE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
