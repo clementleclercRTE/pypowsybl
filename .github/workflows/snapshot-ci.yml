@@ -95,7 +95,9 @@ jobs:
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-open-loadflow
       - name: Get LOADFLOW_VERSION
-        run: echo "LOADFLOW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        run: |
+          echo "LOADFLOW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
         working-directory: ./powsybl-open-loadflow
 
       #BUILD DIAGRAM
@@ -114,7 +116,9 @@ jobs:
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-diagram
       - name: Get DIAGRAM_VERSION version
-        run: echo "DIAGRAM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        run: |
+          echo "DIAGRAM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
         working-directory: ./powsybl-diagram
 
       #BUILD ENTSOE
@@ -135,7 +139,9 @@ jobs:
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-enstoe
       - name: Get ENTSOE_VERSION
-        run: echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        run: |
+          echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
         working-directory: ./powsybl-enstoe
 
       #BUILD OPENRAO
@@ -152,6 +158,8 @@ jobs:
           mvn versions:set-property -Dproperty=powsybl.core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
           mvn versions:set-property -Dproperty=powsybl.entsoe.version -DnewVersion=${{ env.ENTSOE_VERSION}} -DgenerateBackupPoms=false
           mvn versions:set-property -Dproperty=powsybl.openloadflow.version -DnewVersion=${{ env.LOADFLOW_VERSION}} -DgenerateBackupPoms=false
+          cat pom.xml
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
         working-directory: ./powsybl-openrao
       - name: Build OPENRAO
         run: mvn -batch-mode --no-transfer-progress clean install
@@ -247,7 +255,7 @@ jobs:
           status: ${{ job.status }}
           fields: repo,message,action,eventName,ref,workflow
           text: |
-            :x: *Échec du workflow GitHub Actions*
+            :x: *Échec du workflow
             
             *Workflow:* ${{ github.workflow }}
             *Job:* ${{ github.job }}
