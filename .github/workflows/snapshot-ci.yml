@@ -13,6 +13,8 @@ jobs:
       matrix:
         config:
           - { name: ubuntu, os: ubuntu-latest}
+          - { name: windows, os: windows-2022 }
+
         python:
           - { name: cp313, version: '3.13' }
       fail-fast: false
