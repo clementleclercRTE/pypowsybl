@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 3 * * *'
 
+env :
+  TEST_SUMMARY: test_summary.txt
+
 jobs:
   build_pypowsybl:
     name: Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel
@@ -89,7 +92,9 @@ jobs:
           ref: ${{ env.SNAPSHOT_BRANCH }}
           path: powsybl-open-loadflow
       - name: Change core version
-        run: mvn versions:set-property -Dproperty=powsybl-core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
+        run: | 
+          mvn versions:set-property -Dproperty=powsybl-core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
+          echo "LOADFLOW: $?" >> $TEST_SUMMARY
         working-directory: ./powsybl-open-loadflow
       - name: Build LOADFLOW
         continue-on-error: true
@@ -251,38 +256,17 @@ jobs:
           name: pypowsybl-wheel-${{ matrix.config.name }}-${{ matrix.python.name }}
           path: dist/*.whl
 
-      # Add test summary step
       - name: Generate Test Summary
         if: always()
         run: |
-          echo "### Test Execution Summary 📊" >> $GITHUB_STEP_SUMMARY
-          
-          # Function to check maven log for failures
-          check_maven_log() {
-            local module=$1
-            local log_file="$module/target/surefire-reports/TEST-*.xml"
-            
-            if ls $log_file 1> /dev/null 2>&1; then
-              echo "#### $module Test Results" >> $GITHUB_STEP_SUMMARY
-              failed_tests=$(grep -l "failures=\"[1-9]" $log_file || true)
-              if [ ! -z "$failed_tests" ]; then
-                echo "❌ Failed Tests:" >> $GITHUB_STEP_SUMMARY
-                for test in $failed_tests; do
-                  classname=$(grep "testcase classname" $test | head -1 | sed 's/.*classname="\([^"]*\)".*/\1/')
-                  echo "- $classname" >> $GITHUB_STEP_SUMMARY
-                done
-              else
-                echo "✅ All tests passed" >> $GITHUB_STEP_SUMMARY
-              fi
-              echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build & Test Summary 📊" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          while IFS= read -r line; do
+            module=$(echo $line | cut -d':' -f1)
+            status=$(echo $line | cut -d':' -f2)
+            if [ "$status" = " 0" ]; then
+              echo "✅ $module: Success" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ $module: Failed" >> $GITHUB_STEP_SUMMARY
             fi
-          }
-          
-          # Check each module
-          check_maven_log "powsybl-core"
-          check_maven_log "powsybl-open-loadflow"
-          check_maven_log "powsybl-diagram"
-          check_maven_log "powsybl-enstoe"
-          check_maven_log "powsybl-openrao"
-          check_maven_log "powsybl-dynawo"
-          check_maven_log "powsybl-dependencies"
+          done < $TEST_SUMMARY
