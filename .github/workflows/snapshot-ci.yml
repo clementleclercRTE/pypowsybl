@@ -32,8 +32,7 @@ jobs:
         shell: bash
 
     steps:
-      - name: Initialize test summary
-        run: touch ${{ github.workspace }}/build_status.txt
+
 
       #SETUP PYTHON
       - name: Set up Python ${{ matrix.python.version }}
@@ -50,6 +49,14 @@ jobs:
           java-version: '17'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      #INITIALISE REPORT
+      - name: Initialize test summary
+        run: |
+          if [[ "${{ matrix.config.name }}" == "windows" ]]; then
+            mkdir -p $(dirname "$BUILD_STATUS")
+          fi
+          touch "$BUILD_STATUS"
 
       #DEFINE SCRIPTS PATH
       - name: Set up script path
@@ -121,7 +128,9 @@ jobs:
         working-directory: ./powsybl-diagram
       - name: Build DIAGRAM
         continue-on-error: true
-        run: mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true
+        run: |
+          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "DIAGRAM" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-diagram
       - name: Get DIAGRAM_VERSION version
         run: echo "DIAGRAM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -143,7 +152,9 @@ jobs:
         working-directory: ./powsybl-enstoe
       - name: Build ENTSOE
         continue-on-error: true
-        run: mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true
+        run: |
+          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "ENTSOE" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-enstoe
       - name: Get ENTSOE_VERSION
         run: echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -166,7 +177,9 @@ jobs:
         working-directory: ./powsybl-openrao
       - name: Build OPENRAO
         continue-on-error: true
-        run: mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true
+        run: |
+          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "OPENRAO" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-openrao
       - name: Get OPENRAO_VERSION
         run: echo "OPENRAO_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -186,7 +199,9 @@ jobs:
         working-directory: ./powsybl-dynawo
       - name: Build DYNAWO
         continue-on-error: true
-        run: mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true
+        run: |
+          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "DYNAWO" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-dynawo
       - name: Get DYNAWO_VERSION
         run: echo "DYNAWO_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
