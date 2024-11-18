@@ -31,6 +31,8 @@ jobs:
         shell: bash
 
     steps:
+      - name: Initialize test summary
+        run: touch $TEST_SUMMARY
 
       #SETUP PYTHON
       - name: Set up Python ${{ matrix.python.version }}
@@ -98,7 +100,21 @@ jobs:
         working-directory: ./powsybl-open-loadflow
       - name: Build LOADFLOW
         continue-on-error: true
-        run: mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true
+        run: |
+          mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true
+          BUILD_EXIT=$?
+          if [ $BUILD_EXIT -eq 0 ]; then
+            echo "Module LOADFLOW - Status: Success" >> $TEST_SUMMARY
+            echo "Build tests passed" >> $TEST_SUMMARY
+          else
+            echo "Module LOADFLOW - Status: Failed" >> $TEST_SUMMARY
+            echo "Failed tests:" >> $TEST_SUMMARY
+            find . -name "TEST-*.xml" -exec grep -l "<failure" {} \; | while read file; do
+              classname=$(grep "testcase classname" "$file" | grep "failure" | sed 's/.*classname="\([^"]*\)".*/\1/')
+              testname=$(grep "testcase name" "$file" | grep "failure" | sed 's/.*name="\([^"]*\)".*/\1/')
+              echo "- $classname :: $testname" >> $TEST_SUMMARY
+            done
+          fi
 
         working-directory: ./powsybl-open-loadflow
       - name: Get LOADFLOW_VERSION
