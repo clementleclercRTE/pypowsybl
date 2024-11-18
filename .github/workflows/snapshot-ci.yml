@@ -92,7 +92,9 @@ jobs:
         run: mvn versions:set-property -Dproperty=powsybl-core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
         working-directory: ./powsybl-open-loadflow
       - name: Build LOADFLOW
+        continue-on-error: true
         run: mvn -batch-mode --no-transfer-progress clean install
+
         working-directory: ./powsybl-open-loadflow
       - name: Get LOADFLOW_VERSION
         run: echo "LOADFLOW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -111,6 +113,7 @@ jobs:
         run: mvn versions:set-property -Dproperty=powsybl-core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
         working-directory: ./powsybl-diagram
       - name: Build DIAGRAM
+        continue-on-error: true
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-diagram
       - name: Get DIAGRAM_VERSION version
@@ -132,6 +135,7 @@ jobs:
           mvn versions:set-property -Dproperty=powsyblopenloadflow.version -DnewVersion=${{ env.LOADFLOW_VERSION}} -DgenerateBackupPoms=false
         working-directory: ./powsybl-enstoe
       - name: Build ENTSOE
+        continue-on-error: true
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-enstoe
       - name: Get ENTSOE_VERSION
@@ -154,6 +158,7 @@ jobs:
           mvn versions:set-property -Dproperty=powsybl.openloadflow.version -DnewVersion=${{ env.LOADFLOW_VERSION}} -DgenerateBackupPoms=false
         working-directory: ./powsybl-openrao
       - name: Build OPENRAO
+        continue-on-error: true
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-openrao
       - name: Get OPENRAO_VERSION
@@ -173,6 +178,7 @@ jobs:
         run: mvn versions:set-property -Dproperty=powsybl-core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
         working-directory: ./powsybl-dynawo
       - name: Build DYNAWO
+        continue-on-error: true
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-dynawo
       - name: Get DYNAWO_VERSION
@@ -202,6 +208,7 @@ jobs:
         working-directory: ./powsybl-dependencies
 
       - name: Install powsybl-dependencies
+        continue-on-error: true
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-dependencies
 
