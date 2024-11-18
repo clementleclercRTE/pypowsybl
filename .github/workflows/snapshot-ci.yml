@@ -5,8 +5,9 @@ on:
   schedule:
     - cron: '0 3 * * *'
 
-env :
-  TEST_SUMMARY: test_summary.txt
+env:
+  BUILD_STATUS: ${{ github.workspace }}/build_status.txt
+
 
 jobs:
   build_pypowsybl:
@@ -32,7 +33,7 @@ jobs:
 
     steps:
       - name: Initialize test summary
-        run: touch $TEST_SUMMARY
+        run: touch ${{ github.workspace }}/build_status.txt
 
       #SETUP PYTHON
       - name: Set up Python ${{ matrix.python.version }}
@@ -94,28 +95,13 @@ jobs:
           ref: ${{ env.SNAPSHOT_BRANCH }}
           path: powsybl-open-loadflow
       - name: Change core version
-        run: | 
-          mvn versions:set-property -Dproperty=powsybl-core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
-          echo "LOADFLOW: $?" >> $TEST_SUMMARY
+        run: mvn versions:set-property -Dproperty=powsybl-core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
         working-directory: ./powsybl-open-loadflow
       - name: Build LOADFLOW
         continue-on-error: true
         run: |
-          mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true
-          BUILD_EXIT=$?
-          if [ $BUILD_EXIT -eq 0 ]; then
-            echo "Module LOADFLOW - Status: Success" >> $TEST_SUMMARY
-            echo "Build tests passed" >> $TEST_SUMMARY
-          else
-            echo "Module LOADFLOW - Status: Failed" >> $TEST_SUMMARY
-            echo "Failed tests:" >> $TEST_SUMMARY
-            find . -name "TEST-*.xml" -exec grep -l "<failure" {} \; | while read file; do
-              classname=$(grep "testcase classname" "$file" | grep "failure" | sed 's/.*classname="\([^"]*\)".*/\1/')
-              testname=$(grep "testcase name" "$file" | grep "failure" | sed 's/.*name="\([^"]*\)".*/\1/')
-              echo "- $classname :: $testname" >> $TEST_SUMMARY
-            done
-          fi
-
+          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "LOADFLOW" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-open-loadflow
       - name: Get LOADFLOW_VERSION
         run: echo "LOADFLOW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -272,17 +258,9 @@ jobs:
           name: pypowsybl-wheel-${{ matrix.config.name }}-${{ matrix.python.name }}
           path: dist/*.whl
 
-      - name: Generate Test Summary
+      - name: Show Build Status Report
         if: always()
         run: |
-          echo "### Build & Test Summary 📊" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          while IFS= read -r line; do
-            module=$(echo $line | cut -d':' -f1)
-            status=$(echo $line | cut -d':' -f2)
-            if [ "$status" = " 0" ]; then
-              echo "✅ $module: Success" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "❌ $module: Failed" >> $GITHUB_STEP_SUMMARY
-            fi
-          done < $TEST_SUMMARY
+          echo "=== BUILD STATUS REPORT ==="
+          cat $BUILD_STATUS
+          echo "=========================="
