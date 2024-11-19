@@ -282,7 +282,7 @@ jobs:
 
     #SLACK NOTIFICATION ON FAILURE
       - name: Read Build Status
-        if: failure()
+        if: always()
         id: build_status
         run: echo "BUILD_STATUS_CONTENT=$(cat $BUILD_STATUS)" >> $GITHUB_OUTPUT
 
