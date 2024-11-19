@@ -276,16 +276,12 @@ jobs:
       - name: Show Build Status Report
         if: always()
         run: |
+          echo "BUILD_STATUS_CONTENT=$(cat $BUILD_STATUS)" >> $GITHUB_OUTPUT
           echo "=== BUILD STATUS REPORT ==="
           cat $BUILD_STATUS
           echo "=========================="
 
     #SLACK NOTIFICATION ON FAILURE
-      - name: Read Build Status
-        if: always()
-        id: build_status
-        run: echo "BUILD_STATUS_CONTENT=$(cat $BUILD_STATUS)" >> $GITHUB_OUTPUT
-
       - name: Slack Notification
         uses: 8398a7/action-slack@v3
         if: failure()
