@@ -35,8 +35,7 @@ jobs:
         shell: bash
 
     steps:
-
-
+      -
       #SETUP PYTHON
       - name: Set up Python ${{ matrix.python.version }}
         uses: actions/setup-python@v4
@@ -302,10 +301,15 @@ jobs:
         - name: Send Slack Notification
           uses: 8398a7/action-slack@v3
           with:
-            status: custom
-            custom_payload: |
-              {
-                "text": ":x: *Échec du workflow ${{ github.workflow }}*\n\n*Détails des échecs:*\n```${{ needs.build_pypowsybl.outputs.build_status }}```\n\nVoir les logs : (https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-              }
+            status: ${{ job.status }}
+            text: |
+              :x: *Échec du workflow ${{ github.workflow }}*
+  
+              *Détails des échecs:*
+              ```
+              ${{ needs.build_pypowsybl.outputs.build_status }}
+              ```
+  
+              Voir les logs : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           env:
             SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
