@@ -299,9 +299,9 @@ jobs:
             *Job:* ${{ github.job }}
             
             *Détails du build:*
-            ```
+            ---------------------------------------------
             ${{ steps.build_status.outputs.BUILD_STATUS_CONTENT }}
-            ```
+            
 
             Voir les logs :
             (https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
