@@ -292,13 +292,11 @@ jobs:
             
             *Workflow:* ${{ github.workflow }}
             *Job:* ${{ github.job }}
-            *Étape:* ${{ github.action }}
             
             *Détails:*
-            • Repo: ${{ github.repository }}
-            • Branche: ${{ github.ref_name }}
-            • Événement déclencheur: ${{ github.event_name }}
+            ${{ BUILD_STATUS }}
             
-            [Voir les logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            Voir les logs :
+            (https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
