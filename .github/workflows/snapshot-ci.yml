@@ -35,7 +35,7 @@ jobs:
         shell: bash
 
     steps:
-      -
+
       #SETUP PYTHON
       - name: Set up Python ${{ matrix.python.version }}
         uses: actions/setup-python@v4
