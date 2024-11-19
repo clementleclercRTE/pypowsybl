@@ -304,6 +304,11 @@ jobs:
             status: ${{ job.status }}
             text: |
               :x: *Échec du workflow ${{ github.workflow }}*
+              
+              *Jobs en échec:*
+              ```
+              ${{ needs.build_pypowsybl.outputs.matrix_result }}
+              ```
   
               *Détails des échecs:*
               ```
