@@ -281,7 +281,7 @@ jobs:
           cat $BUILD_STATUS
           echo "=========================="
 
-    #SLACK NOTIFICATION ON FAILURE
+      #SLACK NOTIFICATION ON FAILURE
       - name: Read Build Status
         if: always()
         id: build_status
@@ -292,12 +292,12 @@ jobs:
         if: failure()
         with:
           status: ${{ job.status }}
-          fields: repo,message,action,eventName,ref,workflow
+          fields: workflow
           text: |
             :x: *Échec du workflow ${{ github.workflow }}*
             
             *Workflow:* ${{ github.workflow }}
-            *Job:* ${{ github.job }}
+            *Job:* Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel
             
             *Détails du build:*
             ---------------------------------------------
