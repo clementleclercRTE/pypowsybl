@@ -281,6 +281,11 @@ jobs:
           echo "=========================="
 
     #SLACK NOTIFICATION ON FAILURE
+      - name: Read Build Status
+        if: failure()
+        id: build_status
+        run: echo "BUILD_STATUS_CONTENT=$(cat $BUILD_STATUS)" >> $GITHUB_OUTPUT
+
       - name: Slack Notification
         uses: 8398a7/action-slack@v3
         if: failure()
@@ -288,14 +293,16 @@ jobs:
           status: ${{ job.status }}
           fields: repo,message,action,eventName,ref,workflow
           text: |
-            :x: *Échec du workflow ${{ github.workflow }}
+            :x: *Échec du workflow ${{ github.workflow }}*
             
             *Workflow:* ${{ github.workflow }}
             *Job:* ${{ github.job }}
             
-            *Détails:*
-            ${{ BUILD_STATUS }}
-            
+            *Détails du build:*
+            ```
+            ${{ steps.build_status.outputs.BUILD_STATUS_CONTENT }}
+            ```
+
             Voir les logs :
             (https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
         env:
