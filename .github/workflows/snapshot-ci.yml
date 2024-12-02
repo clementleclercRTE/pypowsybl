@@ -8,7 +8,6 @@ on:
 env:
   BUILD_STATUS: ${{ github.workspace }}/build_status.txt
 
-
 jobs:
   build_pypowsybl:
     name: Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel
@@ -259,6 +258,14 @@ jobs:
           echo "=== BUILD STATUS REPORT ==="
           cat $BUILD_STATUS
           echo "=========================="
+          
+      - name: Read Build Status
+        if: always()
+        id: build_status
+        run: |
+          echo "BUILD_STATUS_CONTENT<<EOF" >> $GITHUB_OUTPUT
+          cat $BUILD_STATUS >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
   #SLACK NOTIFICATION ON FAILURE
   notify_slack:
