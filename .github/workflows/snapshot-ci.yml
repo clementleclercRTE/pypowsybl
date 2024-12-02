@@ -20,6 +20,7 @@ jobs:
       matrix:
         config:
           - { name: ubuntu, os: ubuntu-latest}
+          - { name: windows, os: windows-2022}
         python:
           - { name: cp38, version: '3.8' }
       fail-fast: false
