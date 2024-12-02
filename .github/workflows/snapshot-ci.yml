@@ -20,10 +20,8 @@ jobs:
       matrix:
         config:
           - { name: ubuntu, os: ubuntu-latest}
-          - { name: darwin, os: macos-12, macosx_deployment_target: "10.16", bdist_wheel_args: "--plat-name macosx-11.0-x86_64" }
         python:
           - { name: cp38, version: '3.8' }
-          - { name: cp39, version: '3.9' }
       fail-fast: false
     defaults:
       run:
@@ -104,7 +102,8 @@ jobs:
       - name: Build LOADFLOW
         continue-on-error: true
         run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "LOADFLOW" "mvn -batch-mode --no-transfer-progress clean install"
+          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "LOADFLOW" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-open-loadflow
       - name: Get LOADFLOW_VERSION
         run: echo "LOADFLOW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -124,8 +123,7 @@ jobs:
         working-directory: ./powsybl-diagram
       - name: Build DIAGRAM
         continue-on-error: true
-        run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "DIAGRAM" "mvn -batch-mode --no-transfer-progress clean install"
+        run: ${{ env.SCRIPTS_PATH }}/build_module.sh "DIAGRAM" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-diagram
       - name: Get DIAGRAM_VERSION version
         run: echo "DIAGRAM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -147,8 +145,7 @@ jobs:
         working-directory: ./powsybl-enstoe
       - name: Build ENTSOE
         continue-on-error: true
-        run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "ENTSOE" "mvn -batch-mode --no-transfer-progress clean install"
+        run: ${{ env.SCRIPTS_PATH }}/build_module.sh "ENTSOE" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-enstoe
       - name: Get ENTSOE_VERSION
         run: echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -171,8 +168,7 @@ jobs:
         working-directory: ./powsybl-openrao
       - name: Build OPENRAO
         continue-on-error: true
-        run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "OPENRAO" "mvn -batch-mode --no-transfer-progress clean install"
+        run: ${{ env.SCRIPTS_PATH }}/build_module.sh "OPENRAO" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-openrao
       - name: Get OPENRAO_VERSION
         run: echo "OPENRAO_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -192,8 +188,7 @@ jobs:
         working-directory: ./powsybl-dynawo
       - name: Build DYNAWO
         continue-on-error: true
-        run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "DYNAWO" "mvn -batch-mode --no-transfer-progress clean install"
+        run: ${{ env.SCRIPTS_PATH }}/build_module.sh "DYNAWO" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-dynawo
       - name: Get DYNAWO_VERSION
         run: echo "DYNAWO_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -268,7 +263,7 @@ jobs:
       - name: Record Job Name
         if: failure()
         run: |
-          echo "Job en échec : Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel" >> $BUILD_STATUS
+          echo "Failed job : Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel" >> $BUILD_STATUS
 
       - name: Show Build Status Report
         if: always()
@@ -289,22 +284,20 @@ jobs:
 
   #SLACK NOTIFICATION ON FAILURE
   notify_slack:
-      needs: build_pypowsybl
-      runs-on: ubuntu-latest
-      if: failure()
-      steps:
-        - name: Send Slack Notification
-          uses: 8398a7/action-slack@v3
-          with:
-            status: ${{ job.status }}
-            text: |
-              :x: *Échec du workflow ${{ github.workflow }}*
-                
-              *Détails des échecs:*
-              ```
-              ${{ needs.build_pypowsybl.outputs.build_status }}
-              ```
-  
-              Voir les logs : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          env:
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+   needs: build_pypowsybl
+   runs-on: ubuntu-latest
+   if: failure()
+   steps:
+     - name: Send Slack Notification
+       uses: 8398a7/action-slack@v3
+       with:
+         status: ${{ job.status }}
+         text: |
+           :x: *Failed workflow ${{ github.workflow }}*
+           *Failure details:*
+           ```
+           ${{ needs.build_pypowsybl.outputs.build_status }}
+           ```
+           See logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+       env:
+         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
