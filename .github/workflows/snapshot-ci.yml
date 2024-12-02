@@ -104,7 +104,6 @@ jobs:
       - name: Build LOADFLOW
         continue-on-error: true
         run: |
-          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
           ${{ env.SCRIPTS_PATH }}/build_module.sh "LOADFLOW" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-open-loadflow
       - name: Get LOADFLOW_VERSION
@@ -126,7 +125,6 @@ jobs:
       - name: Build DIAGRAM
         continue-on-error: true
         run: |
-          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
           ${{ env.SCRIPTS_PATH }}/build_module.sh "DIAGRAM" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-diagram
       - name: Get DIAGRAM_VERSION version
@@ -150,7 +148,6 @@ jobs:
       - name: Build ENTSOE
         continue-on-error: true
         run: |
-          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
           ${{ env.SCRIPTS_PATH }}/build_module.sh "ENTSOE" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-enstoe
       - name: Get ENTSOE_VERSION
@@ -175,8 +172,7 @@ jobs:
       - name: Build OPENRAO
         continue-on-error: true
         run: |
-          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "OPENRAO" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "OPENRAO" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-openrao
       - name: Get OPENRAO_VERSION
         run: echo "OPENRAO_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -197,7 +193,6 @@ jobs:
       - name: Build DYNAWO
         continue-on-error: true
         run: |
-          chmod +x ${{ env.SCRIPTS_PATH }}/build_module.sh
           ${{ env.SCRIPTS_PATH }}/build_module.sh "DYNAWO" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
         working-directory: ./powsybl-dynawo
       - name: Get DYNAWO_VERSION
