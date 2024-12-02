@@ -251,18 +251,13 @@ jobs:
         run: |
           echo "Failed job : Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel" >> $BUILD_STATUS
 
-      - name: Show Build Status Report
-        if: always()
-        run: |
-          echo "BUILD_STATUS_CONTENT=$(cat $BUILD_STATUS)" >> $GITHUB_OUTPUT
-          echo "=== BUILD STATUS REPORT ==="
-          cat $BUILD_STATUS
-          echo "=========================="
-          
       - name: Read Build Status
         if: always()
         id: build_status
         run: |
+          echo "=== BUILD STATUS REPORT ==="
+          cat $BUILD_STATUS
+          echo "=========================="
           echo "BUILD_STATUS_CONTENT<<EOF" >> $GITHUB_OUTPUT
           cat $BUILD_STATUS >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
