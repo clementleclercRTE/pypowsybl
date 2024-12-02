@@ -104,7 +104,7 @@ jobs:
       - name: Build LOADFLOW
         continue-on-error: true
         run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "LOADFLOW" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "LOADFLOW" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-open-loadflow
       - name: Get LOADFLOW_VERSION
         run: echo "LOADFLOW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -125,7 +125,7 @@ jobs:
       - name: Build DIAGRAM
         continue-on-error: true
         run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "DIAGRAM" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "DIAGRAM" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-diagram
       - name: Get DIAGRAM_VERSION version
         run: echo "DIAGRAM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -148,7 +148,7 @@ jobs:
       - name: Build ENTSOE
         continue-on-error: true
         run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "ENTSOE" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "ENTSOE" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-enstoe
       - name: Get ENTSOE_VERSION
         run: echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -193,7 +193,7 @@ jobs:
       - name: Build DYNAWO
         continue-on-error: true
         run: |
-          ${{ env.SCRIPTS_PATH }}/build_module.sh "DYNAWO" "mvn -batch-mode --no-transfer-progress clean install -Dmaven.test.failure.ignore=true"
+          ${{ env.SCRIPTS_PATH }}/build_module.sh "DYNAWO" "mvn -batch-mode --no-transfer-progress clean install"
         working-directory: ./powsybl-dynawo
       - name: Get DYNAWO_VERSION
         run: echo "DYNAWO_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
