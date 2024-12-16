@@ -13,13 +13,15 @@ jobs:
     name: Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel
     runs-on: ${{ matrix.config.os }}
     outputs:
-      build_status: ${{ steps.build_status.outputs.build_status }} #Output job with
+      build_status_output: ${{ steps.rw_build_status.outputs.build_status }} #Output job with build_status.txt content created in Read Build Status step
+
     strategy:
       matrix:
         config:
           - { name: ubuntu, os: ubuntu-latest}
         python:
           - { name: cp38, version: '3.8' }
+
       fail-fast: false
     defaults:
       run:
@@ -250,12 +252,12 @@ jobs:
 
       - name: Read Build Status
         if: always()
-        id: build_status
+        id: rw_build_status
         run: |
           echo "=== BUILD STATUS REPORT ==="
           cat $BUILD_STATUS
           echo "=========================="
-          echo "build_status<<EOF" >> $GITHUB_OUTPUT
+          echo "build_status_output<<EOF" >> $GITHUB_OUTPUT
           cat $BUILD_STATUS >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
@@ -274,7 +276,7 @@ jobs:
            :x: *Failed workflow ${{ github.workflow }}*
            *Failure details:*
            ```
-           ${{ needs.build_pypowsybl.outputs.build_status }}
+           ${{ needs.build_pypowsybl.outputs.build_status_output }}
            ```
            See logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
        env:
