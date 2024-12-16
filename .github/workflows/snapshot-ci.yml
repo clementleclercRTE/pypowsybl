@@ -13,7 +13,7 @@ jobs:
     name: Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel
     runs-on: ${{ matrix.config.os }}
     outputs:
-      build_status_output: ${{ steps.rw_build_status.outputs.build_status }} #Output job with build_status.txt content created in Read Build Status step
+      build_status_output: ${{ steps.build_status_step.outputs.build_status_output }} #Output job with build_status.txt content created in Read Build Status step
 
     strategy:
       matrix:
@@ -252,7 +252,7 @@ jobs:
 
       - name: Read Build Status
         if: always()
-        id: rw_build_status
+        id: build_status_step
         run: |
           echo "=== BUILD STATUS REPORT ==="
           cat $BUILD_STATUS
