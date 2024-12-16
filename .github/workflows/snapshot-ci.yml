@@ -12,8 +12,6 @@ jobs:
   build_pypowsybl:
     name: Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel
     runs-on: ${{ matrix.config.os }}
-    outputs:
-      build_status: ${{ steps.build_status.outputs.BUILD_STATUS_CONTENT }}
     strategy:
       matrix:
         config:
@@ -25,9 +23,10 @@ jobs:
     defaults:
       run:
         shell: bash
+    outputs:
+      build_status: ${{ steps.set_output.outputs.build_status }}
 
     steps:
-
       #SETUP PYTHON
       - name: Set up Python ${{ matrix.python.version }}
         uses: actions/setup-python@v5
@@ -249,28 +248,21 @@ jobs:
         run: |
           echo "Failed job : Build ${{ matrix.config.name }} ${{ matrix.python.name }} wheel" >> $BUILD_STATUS
 
-      - name: Read Build Status
+      - name: Create Build Status
         if: always()
         id: build_status
         run: |
-          echo "=== BUILD STATUS REPORT ==="
-          cat $BUILD_STATUS
-          echo "=========================="
-          echo "BUILD_STATUS_CONTENT<<EOF" >> $GITHUB_OUTPUT
-          cat $BUILD_STATUS >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
+          if [ -f "$BUILD_STATUS" ]; then
+            echo "build_status=$(cat $BUILD_STATUS)" >> $GITHUB_OUTPUT
+          else 
+            echo "build_status=No failures" >> $GITHUB_OUTPUT
+          fi
 
   notify_slack:
     needs: build_pypowsybl
     runs-on: ubuntu-latest
     if: failure()
     steps:
-      - name: Read build status
-        run: |
-          echo "=== Build Status ==="
-          cat ${{ github.workspace }}/build_status.txt
-        id: read_status
       - name: Send Slack Notification
         uses: 8398a7/action-slack@v3
         with:
@@ -279,7 +271,7 @@ jobs:
             :x: *Failed workflow ${{ github.workflow }}*
             *Failure details:*
             ```
-            $(cat ${{ github.workspace }}/build_status.txt)
+            ${{ needs.build_pypowsybl.outputs.build_status }}
             ```
             See logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         env:
