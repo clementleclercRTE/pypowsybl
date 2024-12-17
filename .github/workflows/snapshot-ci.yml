@@ -2,8 +2,6 @@ name: Snapshot CI
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 3 * * *'
 
 env:
   BUILD_STATUS: ${{ github.workspace }}/build_status.txt
